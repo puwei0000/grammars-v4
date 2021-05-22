@@ -33,7 +33,7 @@ SPACE:                               [ \t\r\n]+    -> channel(HIDDEN);
 SPEC_MYSQL_COMMENT:                  '/*!' .+? '*/' -> channel(MYSQLCOMMENT);
 COMMENT_INPUT:                       '/*' .*? '*/' -> channel(HIDDEN);
 LINE_COMMENT:                        (
-                                       ('-- ' | '#') ~[\r\n]* ('\r'? '\n' | EOF)
+                                       ('--' [ \t] | '#') ~[\r\n]* ('\r'? '\n' | EOF)
                                        | '--' ('\r'? '\n' | EOF)
                                      ) -> channel(HIDDEN);
 
@@ -691,8 +691,13 @@ CONNECTION_ADMIN:                    'CONNECTION_ADMIN';
 ENCRYPTION_KEY_ADMIN:                'ENCRYPTION_KEY_ADMIN';
 FIREWALL_ADMIN:                      'FIREWALL_ADMIN';
 FIREWALL_USER:                       'FIREWALL_USER';
+FLUSH_OPTIMIZER_COSTS:               'FLUSH_OPTIMIZER_COSTS';
+FLUSH_STATUS:                        'FLUSH_STATUS';
+FLUSH_TABLES:                        'FLUSH_TABLES';
+FLUSH_USER_RESOURCES:                'FLUSH_USER_RESOURCES';
 GROUP_REPLICATION_ADMIN:             'GROUP_REPLICATION_ADMIN';
 INNODB_REDO_LOG_ARCHIVE:             'INNODB_REDO_LOG_ARCHIVE';
+INNODB_REDO_LOG_ENABLE:              'INNODB_REDO_LOG_ENABLE';
 NDB_STORED_USER:                     'NDB_STORED_USER';
 PERSIST_RO_VARIABLES_ADMIN:          'PERSIST_RO_VARIABLES_ADMIN';
 REPLICATION_APPLIER:                 'REPLICATION_APPLIER';
@@ -700,6 +705,7 @@ REPLICATION_SLAVE_ADMIN:             'REPLICATION_SLAVE_ADMIN';
 RESOURCE_GROUP_ADMIN:                'RESOURCE_GROUP_ADMIN';
 RESOURCE_GROUP_USER:                 'RESOURCE_GROUP_USER';
 ROLE_ADMIN:                          'ROLE_ADMIN';
+SERVICE_CONNECTION_ADMIN:            'SERVICE_CONNECTION_ADMIN';
 SESSION_VARIABLES_ADMIN:             QUOTE_SYMB? 'SESSION_VARIABLES_ADMIN' QUOTE_SYMB?;
 SET_USER_ID:                         'SET_USER_ID';
 SHOW_ROUTINE:                        'SHOW_ROUTINE';
@@ -1204,6 +1210,11 @@ STRING_USER_NAME:                    (
                                      (
                                        SQUOTA_STRING | DQUOTA_STRING
                                        | BQUOTA_STRING | ID_LITERAL
+                                       | IP_ADDRESS
+                                     );
+IP_ADDRESS:                          (
+                                       [0-9]+ '.' [0-9.]+
+                                       | [0-9A-F:]+ ':' [0-9A-F:]+
                                      );
 LOCAL_ID:                            '@'
                                 (
@@ -1232,7 +1243,7 @@ fragment CHARSET_NAME:               ARMSCII8 | ASCII | BIG5 | BINARY | CP1250
                                      | UTF8 | UTF8MB3 | UTF8MB4;
 
 fragment EXPONENT_NUM_PART:          'E' [-+]? DEC_DIGIT+;
-fragment ID_LITERAL:                 [A-Z_$0-9]*?[A-Z_$]+?[A-Z_$0-9]*;
+fragment ID_LITERAL:                 [A-Z_$0-9\u0080-\uFFFF]*?[A-Z_$\u0080-\uFFFF]+?[A-Z_$0-9\u0080-\uFFFF]*;
 fragment DQUOTA_STRING:              '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
 fragment SQUOTA_STRING:              '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 fragment BQUOTA_STRING:              '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
